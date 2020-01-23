@@ -12,7 +12,11 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.7.0' # Version range or exact version of a Ruby version to use, using semvers version range syntax.
-      - run: ruby sentry_to_geckoboard.rb
+      - run: |
+          gem install bundler
+          bundle install --jobs 2 retry 3
+          bundle exec ruby sentry_to_geckoboard.rb
+        
         env:
           SENTRY_API_KEY: ${{ secrets.SENTRY_API_KEY }}
           GECKOBOARD_API_KEY: ${{ secrets.GECKOBOARD_API_KEY }}
