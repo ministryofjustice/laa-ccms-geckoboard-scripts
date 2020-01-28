@@ -5,11 +5,11 @@ api_key = ENV['GECKOBOARD_API_KEY']
 sentry_api_key = ENV['SENTRY_API_KEY']
 
 pda_url = 'https://sentry.service.dsd.io/api/0/projects/mojds/ProviderDeets/issues/'
-pda_resp = Faraday.get(pda_url, {statsPeriod: '24h'}, {'Authorization' => "Bearer #{sentry_api_key}"})
+pda_resp = Faraday.get(pda_url, {statsPeriod: '24h', query: 'environment:production'}, {'Authorization' => "Bearer #{sentry_api_key}"})
 pda_hits = pda_resp.headers['X-Hits'].to_i
 
 pui_url = 'https://sentry.service.dsd.io/api/0/projects/mojds/pui/issues/'
-pui_resp = Faraday.get(pui_url, {statsPeriod: '24h'}, {'Authorization' => "Bearer #{sentry_api_key}"})
+pui_resp = Faraday.get(pui_url, {statsPeriod: '24h', query: 'environment:production'}, {'Authorization' => "Bearer #{sentry_api_key}"})
 pui_hits = pui_resp.headers['X-Hits'].to_i
 
 client = Geckoboard.client(api_key)
