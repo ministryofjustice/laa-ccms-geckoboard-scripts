@@ -4,18 +4,28 @@ require 'faraday'
 api_key = ENV['GECKOBOARD_API_KEY']
 sentry_api_key = ENV['SENTRY_API_KEY']
 
-url = 'https://sentry.service.dsd.io/api/0/projects/mojds/ProviderDeets/issues/'
-resp = Faraday.get(url, {statsPeriod: '24h'}, {'Authorization' => "Bearer #{sentry_api_key}"})
-hits = resp.headers['X-Hits'].to_i
+pda_url = 'https://sentry.service.dsd.io/api/0/projects/mojds/ProviderDeets/issues/'
+pda_resp = Faraday.get(pda_url, {statsPeriod: '24h', query: 'environment:production'}, {'Authorization' => "Bearer #{sentry_api_key}"})
+pda_hits = pda_resp.headers['X-Hits'].to_i
+
+pui_url = 'https://sentry.service.dsd.io/api/0/projects/mojds/pui/issues/'
+pui_resp = Faraday.get(pui_url, {statsPeriod: '24h', query: 'environment:production'}, {'Authorization' => "Bearer #{sentry_api_key}"})
+pui_hits = pui_resp.headers['X-Hits'].to_i
 
 client = Geckoboard.client(api_key)
 
-dataset = client.datasets.find_or_create('ccms.issues', fields: [
+dataset = client.datasets.find_or_create('ccms.sentry.issues', fields: [
+  Geckoboard::StringField.new(:project_name, name: 'Project'),
   Geckoboard::NumberField.new(:number_of_issues, name: 'Number of Issues', optional: false),
 ])
 
 dataset.put([
   {
-    number_of_issues: hits,
+    project_name: 'Provider Details API',
+    number_of_issues: pda_hits,
+  },
+  {
+    project_name: 'PUI',
+    number_of_issues: pui_hits,
   }
 ])
